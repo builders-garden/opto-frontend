@@ -1,10 +1,7 @@
 import React from 'react';
-
+import CreateOption from './CreateOption'
 const WriteOptionForm = ({ url: writingUrl, name: name, onClose }) => {
-    // Handle form submission and other logic here
-    const handleSubmit = (event) => {
-        // Handle form submission logic
-    };
+    
 
     return (
         <div className='items-center'>
@@ -21,47 +18,8 @@ const WriteOptionForm = ({ url: writingUrl, name: name, onClose }) => {
                             <span className="sr-only">Close modal</span>
                         </button>
                     </div>
-                    <div className='mt-4 ml-4 w-11/12 text-xs rounded-r-full bg-primary flex items-center'>
-                        <div className="flex items-center">
-
-                        </div>
-                        <div className="flex items-center">
-                            <span className="ml-4">Current price: <br /> 1340$ </span>
-                        </div>
-                        <span className='text-right w-60'>  Call/Put</span><span className="ml-auto text-center" ><input type="checkbox" className="toggle toggle-xs" /></span>
-                    </div>
-                    <form className="p-4" onSubmit={handleSubmit}>
-
-                        <label className="input p-3 input-bordered flex items-center gap-3">
-                            Strike
-                            <input type="text" className="focus:outline-none grow p-3 text-right " required />
-                        </label>
-                        <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
-                            Premium cost
-                            <input type="text" className="focus:outline-none grow p-3 text-right " required />
-                        </label>
-                        <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
-                            Units
-                            <input type="text" className="focus:outline-none grow p-3 text-right" required />
-                        </label>
-                        <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
-                            Cap per unit
-                            <input type="text" className="focus:outline-none grow p-3 text-right " required />
-                        </label>
-                        <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
-                            Expiration Date
-                            <input type="date" className="focus:outline-none grow p-3 text-right" required />
-                        </label>
-                        <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
-                            Buy-in deadline
-                            <input type="date" className="focus:outline-none grow p-3 text-right" required />
-                        </label>
-
-                    </form>
-                    <div className="flex items-center justify-end">
-                        <span className="text-blue-500 mb-4 mr-4 ">Lock 93892 USDC</span>
-                        <button type="submit" className="text-white relative mb-4 mr-4 text-xs bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-1 text-center">Confirm</button>
-                    </div>
+                  <CreateOption/>
+                
                 </div>
             </div>
         </div>
