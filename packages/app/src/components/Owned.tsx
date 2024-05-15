@@ -17,6 +17,7 @@ import gasbnb from "@/assets/icons/assetlogos/gas-bnb.png";
 import blobeth from "@/assets/icons/assetlogos/blob-eth.png";
 import custom from "@/assets/icons/assetlogos/custom.png";
 import { useAccount } from 'wagmi';
+import ClaimBtn from "./ClaimBtn"
 export default function Owned() {
     const [ownedOps, setOwnedOps] = useState<any[]>([]);
     const imgMapping = {
@@ -260,7 +261,7 @@ export default function Owned() {
                             </td>
                             <td className="px-2 py-2 text-xs">
                                 {mapping.option.claimed}
-                                <button type="button" className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none  dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2 ">Claim</button>
+                                <ClaimBtn optionId={mapping.option.id}/>
                             </td>
                         </tr>
                     ))}

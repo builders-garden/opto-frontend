@@ -1,7 +1,6 @@
-import { avalancheFuji } from 'viem/chains'
-import { Chain, hardhat, sepolia } from 'viem/chains'
+import { Chain, hardhat, avalancheFuji, sepolia } from 'viem/chains'
 
-let chains = [avalancheFuji] as [Chain, ...Chain[]]
+let chains = [avalancheFuji, sepolia] as [Chain, ...Chain[]]
 
 if (process.env.NODE_ENV !== 'production') chains.push(sepolia, hardhat)
 

@@ -16,6 +16,7 @@ import blobeth from "@/assets/icons/assetlogos/blob-eth.png";
 import custom from "@/assets/icons/assetlogos/custom.png";
 import { Account } from 'viem';
 import { useAccount } from 'wagmi';
+import CancelBtn from "./CancelBtn"
 export default function Writings() {
     const [writings, setWritings] = useState([]);
     const imgMapping = {
@@ -208,7 +209,7 @@ export default function Writings() {
                                 </div>
                             </td>
                             <td className="px-2 py-2 text-xs">
-                                {!(option.unitsLeft != option.units) && (<button type="button" className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none  dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2 ">Cancel</button>)}
+                                {!(option.unitsLeft != option.units) && (<CancelBtn optionId={option.id}/>)}
 
                             </td>
                         </tr>

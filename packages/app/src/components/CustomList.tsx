@@ -7,6 +7,7 @@ import gasCosts from '@/utils/list-gas'
 import misc from '@/utils/list-misc'
 import WriteOptionForm from './WriteForm';
 import WriteCustomForm from './WriteCustomForm';
+import BuyBtn from './BuyBtn'
 export default function CustomList() {
     const [isWriteOptionOpen, setIsWriteOptionOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false); // State to track modal open/close
@@ -295,13 +296,8 @@ export default function CustomList() {
                             </div>
                         </td>
 
-                        <td className="px-4 ">
-                            <form style={{ position: 'relative' }}>
-                                <label className="form-control w-30 max-w-xs">
-                                    <input type="text" placeholder="" className="input focus:outline-none input-xs input-bordered w-20" />
-                                    <button type="button" onClick={() => { }} className="text-white text-xs bg-gradient-to-r from-blue-500 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:outline-none dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-1 text-center absolute right-0 top-0 ">Buy</button>
-                                </label>
-                            </form>
+                        <td className="px-4 w-40 ">
+                        <BuyBtn optionId={option.id.toString()} premium={option.premium} maxunits={option.unitsLeft.toString()}  />
                         </td>
                         <td className="px-2 text-xs py-2"> <button type="button" onClick={() => { }} className="text-white text-xs bg-gradient-to-r from-blue-500 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:outline-none dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-1 text-center">
 

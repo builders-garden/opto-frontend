@@ -5,7 +5,7 @@ import CodeEditor from '@uiw/react-textarea-code-editor';
 
 const WriteCustomForm = ({ onClose }) => {
     const [code, setCode] = useState(
-        `Write your Function() script here`
+        `Paste your Function() script here.  //Avoid comments like this`
     );
     const handleSubmit = (event) => {
         // Handle form submission logic
@@ -31,10 +31,11 @@ const WriteCustomForm = ({ onClose }) => {
 
                         </div>
 
-                        <span className='text-right w-full ml-auto mr-4'>  Call/Put</span><span className="ml-auto mt-1 text-center" ><input type="checkbox" className="toggle toggle-xs" /></span>
+                     
                     </div>
                     <form className="p-4 flex flex-col md:flex-row md:items-start md:gap-4" onSubmit={handleSubmit}>
-                        <div className="w-30"> {/* Left Column - 30% width on medium screens and above */}
+                        
+                        <div className="w-30">   <span className='text-right w-full ml-auto mr-4'>  Call/Put</span><span className="ml-auto mt-1 text-center" ><input type="checkbox" className="toggle relative top-0.5 toggle-xs" /></span> {/* Left Column - 30% width on medium screens and above */}
                             <label className="input text-xs p-3 mt-2 input-bordered flex items-center gap-3">
                                 Name
                                 <input type="text" className="grow p-3 text-right" required />
@@ -69,7 +70,14 @@ const WriteCustomForm = ({ onClose }) => {
                             </label>
                         </div>
                         <div className="w-full md:w-70"> {/* Right Column - 70% width on medium screens and above */}
-                     
+                        <button
+                            type="button"
+                            onClick={() => window.open('https://functions.chain.link/playground')}
+                            className="text-white relative  text-xs bg-gradient-to-r from-blue-500 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:outline-none dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-1 text-center"
+                        >
+                            Open Playground
+                        </button>
+                               
     <CodeEditor
         value={code}
         minHeight={420}
@@ -85,7 +93,6 @@ const WriteCustomForm = ({ onClose }) => {
     />
 
 
-                  
                         </div>
                     </form>
                 

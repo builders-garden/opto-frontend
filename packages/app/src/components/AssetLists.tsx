@@ -7,6 +7,7 @@ import gasCosts from '@/utils/list-gas'
 import misc from '@/utils/list-misc'
 import WriteOptionForm from './WriteForm';
 import CustomList from './CustomList';
+import BuyBtn from './BuyBtn'
 export default function AssetLists() {
     const [isWriteOptionOpen, setIsWriteOptionOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false); // State to track modal open/close
@@ -527,12 +528,7 @@ export default function AssetLists() {
                                                     </td>
 
                                                     <td className="px-4 ">
-                                                        <form style={{ position: 'relative' }}>
-                                                            <label className="form-control w-full max-w-xs">
-                                                                <input type="text" placeholder="Select units" className="input input-xs input-bordered w-full max-w-xs" />
-                                                                <button type="button" onClick={() => { }} className="text-white text-xs bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-1 text-center absolute right-0 top-0 ">Buy</button>
-                                                            </label>
-                                                        </form>
+                                                    <BuyBtn optionId={option.id.toString()} premium={option.premium} maxunits={option.unitsLeft.toString()}  />
                                                     </td>
                                                 </tr>
                                             </>
