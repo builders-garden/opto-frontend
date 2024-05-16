@@ -350,14 +350,11 @@ export default function AssetLists() {
                     {isModalOpen && (
                         <>
                             <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
-                            <div className="drawer-content">
-
-                                <label htmlFor="my-drawer-4" className="" />
-                            </div>
-                            <div className="drawer-side z-8">
+                       
+                            <div className="drawer-side  z-19">
 
                                 <label htmlFor="my-drawer-4" onClick={() => { setSelectedItem(''); setIsModalOpen(false) }} aria-label="close sidebar" className="drawer-overlay"></label>
-                                <ul className="menu w-2/3  p-0 min-h-full bg-base-200 text-base-content">
+                                <ul className="w-[90rem] p-0 min-h-full bg-base-200 text-base-content">
 
                                     <div className='mt-28 w-1/4 rounded-r-full bg-primary flex items-center'>
 
@@ -531,6 +528,7 @@ export default function AssetLists() {
                                                     <BuyBtn optionId={option.id.toString()} premium={option.premium} maxunits={option.unitsLeft.toString()}  />
                                                     </td>
                                                 </tr>
+                                                
                                             </>
                                             ))}
                                         </tbody>

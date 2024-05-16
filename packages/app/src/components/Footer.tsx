@@ -26,8 +26,8 @@ export function Footer() {
   return (
     <>
       <style>{styles}</style> {/* Include styles using a <style> tag */}
-      <footer className='sticky top-[0vh] footer w-full bg-accent text-primary z-10 p-1'>
-        <p className="slide-from-left">
+      <footer className='sticky top-[0vh]  footer w-full bg-accent text-primary z-20 p-1'>
+        <p className="slide-from-left z-20">
           {SITE_EMOJI} This is a testnet version {SITE_EMOJI}
         </p>
       </footer>

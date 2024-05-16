@@ -296,7 +296,7 @@ export default function CustomList() {
                             </div>
                         </td>
 
-                        <td className="px-4 w-40 ">
+                        <td className="px-4 w-40 relative">
                         <BuyBtn optionId={option.id.toString()} premium={option.premium} maxunits={option.unitsLeft.toString()}  />
                         </td>
                         <td className="px-2 text-xs py-2"> <button type="button" onClick={() => { }} className="text-white text-xs bg-gradient-to-r from-blue-500 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:outline-none dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-1 text-center">

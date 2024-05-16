@@ -25,14 +25,14 @@ export default function Dashboard() {
                     </div>
                     <div role="tablist" className="tabs tabs-lifted">
 
-                        <input type="radio" name="my_tabs_2" role="tab" className="tab bg-slate-100" aria-label="Owned" defaultChecked />
+                        <input type="radio" name="my_tabs_2" role="tab" className="tab bg-slate-200" aria-label="Owned" defaultChecked />
                         <div role="tabpanel" className="tab-content bg-primary border-base-300  p-6">
 
                             <Owned />
 
 
                         </div>
-                        <input type="radio" name="my_tabs_2" role="tab" className="tab bg-slate-100" aria-label="Written" />
+                        <input type="radio" name="my_tabs_2" role="tab" className="tab bg-slate-200" aria-label="Written" />
                         <div role="tabpanel" className="tab-content bg-primary border-base-300  p-6">
                             <Writings />
                         </div>

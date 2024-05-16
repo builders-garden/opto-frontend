@@ -1,15 +1,132 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState,useEffect } from 'react';
 import custom from "@/assets/icons/assetlogos/custom.png";
 import Prism from 'prismjs';
 import CodeEditor from '@uiw/react-textarea-code-editor';
+import { OptoAddress, OptoAbi } from '@/contracts/Opto_ABI';
+import { USDC_ABI, UsdcAddress } from '@/contracts/Usdc_ABI'
+import {
+    type BaseError,
+    useWaitForTransactionReceipt,
+    useWriteContract,
+    useAccount,
+    useReadContract
+} from 'wagmi'
 
 const WriteCustomForm = ({ onClose }) => {
     const [code, setCode] = useState(
         `Paste your Function() script here.  //Avoid comments like this`
     );
-    const handleSubmit = (event) => {
-        // Handle form submission logic
-    };
+    const [transacting, setTransacting] = useState(false);
+    const [strike, setStrike] = useState('');
+    const [premium, setPremium] = useState('');
+    const [units, setUnits] = useState('');
+    const [expirationDate, setExpirationDate] = useState(BigInt(0));
+    const [deadlineDate, setDeadlineDate] = useState(BigInt(0));
+    const [isCall, setIsCall] = useState(false); // Assuming it's a boolean
+    const [capPerUnit, setCapPerUnit] = useState('');
+    
+    
+    const [step, setStep] = useState(0);
+    const {
+        data: hash,
+        isPending,
+        error,
+        writeContract
+    } = useWriteContract();
+
+    // Check if transaction is pending or confirmed
+    const { isLoading: isConfirming, isSuccess: isConfirmed } =
+        useWaitForTransactionReceipt({ hash });
+
+      
+    const submit = async (e: React.FormEvent<HTMLFormElement>) => {
+
+        e.preventDefault()
+        
+        
+        const formData = new FormData(e.target as HTMLFormElement)
+
+        const rawScript = formData.get('script') as string
+        const result = minify(rawScript);
+        console.log(result);
+
+        const strike = formData.get('strike') as string
+        const premium = formData.get('premium') as string
+        const units = formData.get('units') as string
+        const expirationDate = formData.get('expirationDate') as string
+        const deadlineDate = formData.get('deadlineDate') as string
+        
+        const capPerUnit = formData.get('capPerUnit') as string
+        const unixDead = BigInt(Math.floor(new Date(deadlineDate).getTime() / 1000));
+        const unixExp = BigInt(Math.floor(new Date(expirationDate).getTime() / 1000));
+        const isCallValue = formData.get('isCall');
+        const isCall = isCallValue === 'true'; // Convert string to boolean
+        setIsCall(!!isCall);
+        setStrike(strike);
+        setPremium(premium);
+        setUnits(units);
+        setExpirationDate(unixExp);
+        setDeadlineDate(unixDead);
+        setIsCall(isCall);
+        setCapPerUnit(capPerUnit);
+        setStep(1);
+        setTransacting(true)
+        try {
+            writeContract({
+                address: UsdcAddress,
+                abi: USDC_ABI,
+                functionName: 'approve',
+                args: [OptoAddress, BigInt(units) * BigInt(capPerUnit)], // Convert units to BigInt
+            });
+        } catch (err) {
+            console.error(err); // Log any errors
+        }
+
+    }
+    useEffect(() => {
+        if (isConfirmed && step === 1) {
+            const timeout = setTimeout(() => {
+                setStep(2);
+                console.log("coddiaccio")
+                try {
+                    writeContract({
+                        address: OptoAddress,
+                        abi: OptoAbi,
+                        functionName: 'createOption',
+                        args: [!isCall, BigInt(premium), BigInt(strike), BigInt(deadlineDate), BigInt(expirationDate), 1, BigInt(1), BigInt(1), BigInt(units), BigInt(capPerUnit)], // Convert units to BigInt
+                    });
+                  
+                } catch (err) {
+                    console.error(err); // Log any errors
+                }
+            }, 3000);
+
+            return () => clearTimeout(timeout);
+        }
+        if (isConfirmed && step === 2) {
+            const timeout = setTimeout(() => {
+                setTransacting(false);
+            }, 3000);
+
+            return () => clearTimeout(timeout);
+        }
+      
+    }, [isConfirmed]);
+
+    useEffect(()=>{
+       if (error){
+    
+       const timeout = setTimeout(() => {
+        try {
+            setTransacting(false);
+        } catch (err) {
+            console.error(err); // Log any errors
+        }
+    }, 3000);
+       return () => clearTimeout(timeout);
+}
+    }, [error])
+
     
     return (
         <div className='items-center w-full'>
@@ -33,41 +150,41 @@ const WriteCustomForm = ({ onClose }) => {
 
                      
                     </div>
-                    <form className="p-4 flex flex-col md:flex-row md:items-start md:gap-4" onSubmit={handleSubmit}>
+                    <form className="p-4 flex flex-col md:flex-row md:items-start md:gap-4" onSubmit={submit}>
                         
                         <div className="w-30">   <span className='text-right w-full ml-auto mr-4'>  Call/Put</span><span className="ml-auto mt-1 text-center" ><input type="checkbox" className="toggle relative top-0.5 toggle-xs" /></span> {/* Left Column - 30% width on medium screens and above */}
                             <label className="input text-xs p-3 mt-2 input-bordered flex items-center gap-3">
                                 Name
-                                <input type="text" className="grow p-3 text-right" required />
+                                <input name="name" type="text" className="grow p-3 text-right" required />
                             </label>
                             <label className="input text-xs p-3 mt-2 input-bordered flex items-center gap-3">
                                 Description
-                                <input type="text" className="grow p-3 text-right" required />
+                                <input name="description" type="text" className="grow p-3 text-right" required />
                             </label>
-                            <label className="text-xs mt-2 input p-3 input-bordered flex items-center gap-3">
-                                Strike
-                                <input type="text" className="grow p-3 text-right" required />
-                            </label>
-                            <label className="input text-xs p-3 mt-2 input-bordered flex items-center gap-3">
-                                Premium cost
-                                <input type="text" className="grow p-3 text-right" required />
-                            </label>
-                            <label className="input text-xs p-3 mt-2 input-bordered flex items-center gap-3">
-                                Units
-                                <input type="text" className="grow p-3 text-right" required />
-                            </label>
-                            <label className="input text-xs p-3 mt-2 input-bordered flex items-center gap-3">
-                                Cap per unit
-                                <input type="text" className="grow p-3 text-right" required />
-                            </label>
-                            <label className="input text-xs p-3 mt-2 input-bordered flex items-center gap-3">
-                                Expiration Date
-                                <input type="date" className="grow p-3 text-right" required />
-                            </label>
-                            <label className="input text-xs p-3 mt-2 input-bordered flex items-center gap-3">
-                                Buy-in deadline
-                                <input type="date" className="grow p-3 text-right" required />
-                            </label>
+                            <label className="input p-3 input-bordered flex items-center gap-3">
+                Strike
+                <input name="strike" type="text" className="focus:outline-none grow p-3 text-right " required />
+            </label>
+            <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
+                Premium cost
+                <input name="premium" type="text" className="focus:outline-none grow p-3 text-right " required />
+            </label>
+            <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
+                Units
+                <input name="units" type="text" className="focus:outline-none grow p-3 text-right" required />
+            </label>
+            <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
+                Cap per unit
+                <input name="capPerUnit" type="text" className="focus:outline-none grow p-3 text-right " required />
+            </label>
+            <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
+                Expiration Date
+                <input name="expirationDate" type="date" className="focus:outline-none grow p-3 text-right" required />
+            </label>
+            <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
+                Buy-in deadline
+                <input name="deadlineDate" type="date" className="focus:outline-none grow p-3 text-right" required />
+            </label>
                         </div>
                         <div className="w-full md:w-70"> {/* Right Column - 70% width on medium screens and above */}
                         <button
@@ -78,28 +195,29 @@ const WriteCustomForm = ({ onClose }) => {
                             Open Playground
                         </button>
                                
-    <CodeEditor
-        value={code}
-        minHeight={420}
-        language="js"
-        placeholder="Write your Function() script"
-        onChange={(evn) => setCode(evn.target.value)}
-        padding={10}
-        className='block h-full p-2.5 w-full mt-2 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-        style={{
-            backgroundColor: "#f5f5f5", maxHeight: '420px', overflowY: 'auto',
-            fontFamily: 'ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace',
-        }}
-    />
+                    <CodeEditor
+                        value={code}
+                        minHeight={420}
+                        language="js"
+                        name='script'
+                        placeholder="Write your Function() script"
+                        onChange={(evn) => setCode(evn.target.value)}
+                        padding={10}
+                        className='block h-full p-2.5 w-full mt-2 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                        style={{
+                            backgroundColor: "#f5f5f5", maxHeight: '420px', overflowY: 'auto',
+                            fontFamily: 'ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace',
+                        }}
+                    />
 
-
+<span className="text-blue-500 mb-4 mr-4 ">Lock 93892 USDC</span>
+                <button type="submit" className="text-white relative mb-4 mr-4 text-xs bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-1 text-center">Confirm</button>
                         </div>
                     </form>
                 
-                    <div className="flex items-center justify-end">
-                        <span className="text-blue-500 mb-4 mr-4 ">Lock 93892 USDC</span>
-                        <button type="submit" className="text-white relative mb-4 mr-4 text-xs bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-1 text-center">Confirm</button>
-                    </div>
+                   <div className="flex items-center justify-end">
+                
+            </div>
                 </div>
             </div >
         </div >
