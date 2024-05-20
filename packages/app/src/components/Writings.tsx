@@ -25,7 +25,7 @@ export default function Writings() {
         amazon: amazon.src,
         apple: apple.src,
         coinbase: coinbase.src,
-        google: google.src,
+        alphabet: google.src,
         microsoft: microsoft.src,
         nvidia: nvidia.src,
         tesla: tesla.src,
@@ -49,7 +49,7 @@ export default function Writings() {
                         query: `
                             {
                                 options(
-                                    where: {writer_contains_nocase: "${account.address}"}
+                                    where: {writer_contains_nocase: "${account.address}", expirationDate_gt:"${currentTimestamp}", isDeleted: null}
                                 ) {
                                     id
                                     expirationDate
@@ -68,7 +68,6 @@ export default function Writings() {
                         `
                     })
                 });
-                console.log(account);
                 const data = await response.json();
                 if (data && data.data && data.data.options) {
                     setWritings(data.data.options);
@@ -77,24 +76,16 @@ export default function Writings() {
                 console.error('Error fetching data:', error);
             }
         };
+
+        // Fetch data initially
         fetchData();
 
-        // Update countdown timer every second
-        const timerId = setInterval(() => {
-            // Update writings with new countdown values
-            setWritings(prevWritings => {
-                return prevWritings.map(option => {
-                    return {
-                        ...option,
-                        countdown: handleCounter(option.expirationDate)
-                    };
-                });
-            });
-        }, 1000);
+        // Fetch data every 5 seconds
+        const intervalId = setInterval(fetchData, 5000);
 
-        // Clear interval on component unmount
-        return () => clearInterval(timerId);
-    }, []);
+        // Clean up interval on component unmount
+        return () => clearInterval(intervalId);
+    }, [account.address]);
 
     const handleCounter = (expirationTimestamp) => {
         const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
@@ -149,7 +140,7 @@ export default function Writings() {
                         <th scope="col" className="px-2 py-3">Premium</th>
                         <th scope="col" className="px-2 py-3">Sold</th>
                         <th scope="col" className="px-2 py-3">Strike Price</th>
-                        <th scope="col" className="px-2 py-3">Current Price</th>
+                 
                         <th scope="col" className="px-2 py-3">Loss cap</th>
                         <th scope="col" className="px-2 py-3">Expiry</th>
                         <th scope="col" className="px-2 py-3">Action</th>
@@ -160,7 +151,20 @@ export default function Writings() {
                         <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600" key={index}>
                             <td className="w-4 text-xs">
                                 <div className="flex">
-                                    <img className="w-10 ml-2 h-10 rounded-full opacity-100" src={imgMapping[option.name.toLowerCase()] || custom.src} />
+                                {((imgMapping[option.name.toLowerCase()] || custom.src) && 
+    (option.name.toLowerCase() !== "gaseth" &&
+    option.name.toLowerCase() !== "blobeth" &&
+    option.name.toLowerCase() !== "gasbnb" &&
+    option.name.toLowerCase() !== "gasavax")
+) ? (
+    <img className="w-10 ml-2 h-10 rounded-full opacity-100" src={imgMapping[option.name.toLowerCase()] || custom.src} />
+) : (
+    <img className="w-10 ml-2 h-7 rounded-full opacity-100" src={imgMapping[option.name.toLowerCase()] || custom.src} />
+)}
+
+                              
+
+
                                     <div className="font-normal text-gray-400">#{option.id}</div>
                                 </div>
                             </td>
@@ -170,11 +174,11 @@ export default function Writings() {
                                     {option.isCall ? <><div className="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Call</> : <><div className="h-2.5 w-2.5 rounded-full bg-red-500 me-2"></div> Put</>}
                                 </div>
                             </td>
-                            <td className="px-2 text-xs py-2">{option.premium} $</td>
+                            <td className="px-2 text-xs py-2">{option.premium / 1e6} $</td>
                             <td className="px-2 text-xs py-2">{option.unitsLeft}/{option.units}</td>
                             <td className="px-2 text-xs py-2">{option.strikePrice}</td>
-                            <td className="px-2 text-xs py-2">Current Price</td>
-                            <td className="px-2 text-xs py-2">{option.countervalue}</td>
+             
+                            <td className="px-2 text-xs py-2">{option.countervalue / 1e6} $</td>
                             <td className="px-2 text-xs py-2">
                                 <div className="stats bg-primary text-primary-content">
                                     <div className="stat py-1 border rounded-2xl my-0 bg-secondary">

@@ -8,6 +8,11 @@ import misc from '@/utils/list-misc'
 import WriteOptionForm from './WriteForm';
 import WriteCustomForm from './WriteCustomForm';
 import BuyBtn from './BuyBtn'
+import { useReadContract } from 'wagmi';
+import { polygonAmoy } from 'wagmi/chains'
+import { OptoAddress, OptoAbi } from '@/contracts/Opto_ABI';
+import { USDC_ABI, UsdcAddress } from '@/contracts/Usdc_ABI';
+
 export default function CustomList() {
     const [isWriteOptionOpen, setIsWriteOptionOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false); // State to track modal open/close
@@ -17,6 +22,9 @@ export default function CustomList() {
     const [writingUrl, setwritingUrl] = useState('');
     const [writingName, setWritingName] = useState('');
     const [writingCustom, setWritingCustom] = useState(false);
+    const [query, setQuery] = useState('');
+    const [copy, setCopy] = useState(0);
+    const [copyNotificationId, setCopyNotificationId] = useState(0);
     const handleBuyClick = (item: string, img: string) => {
         // Update state or perform actions based on the item clicked
         setSelectedItem(item);
@@ -31,13 +39,29 @@ export default function CustomList() {
         }, 50);
     };
 
-    const calculateProgress = (expirationDate: number) => {
-        const currentTimestamp = Math.floor(Date.now() / 1000);
-        const totalSeconds = expirationDate - currentTimestamp;
-        const totalSecondsInADay = 86400; // 24 hours * 60 minutes * 60 seconds
-        const percentage = (totalSeconds / totalSecondsInADay) * 100;
-        return Math.min(Math.max(percentage, 0), 100); // Ensure the value is between 0 and 100
-    };
+    const { data: rawQuery } = useReadContract({
+        abi: OptoAbi,
+        address: OptoAddress,
+        functionName: "customOptionQueries",
+        args: [
+            BigInt(copy)
+        ]
+    })
+    useEffect(()=>{
+        if (rawQuery) {
+            setQuery(rawQuery);
+            // Copy rawQuery to clipboard
+            navigator.clipboard.writeText(rawQuery)
+                .then(() => {
+                    console.log('Text copied to clipboard');
+                })
+                .catch((err) => {
+                    console.error('Could not copy text: ', err);
+                });
+        }
+    },[copy])
+
+
     const updateTimers = () => {
         setSidebarContent((prevSidebarContent) => {
             // Update the timers for each item in sidebarContent
@@ -79,8 +103,18 @@ export default function CustomList() {
     }, []);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const timer = setInterval(() => {
+            setCopyNotificationId(0)
+        }, 2000);
 
+        return () => {
+            clearInterval(timer);
+        };
+    }, [copyNotificationId]);
+
+
+    useEffect(() => {
+        const fetchData = async () => {
             try {
                 const currentTimestamp = Math.floor(Date.now() / 1000);
 
@@ -93,39 +127,45 @@ export default function CustomList() {
                         query: `
                             {
                                 options(where: {isCustom: true, deadlineDate_gt: "${BigInt(currentTimestamp).toString()}"}) {
-                                  id
-                                  name
-                                  capPerUnit
-                                  countervalue
-                                  deadlineDate
-                                  expirationDate
-                                  hasToPay
-                                  isCall
-                                  desc
-                                  premium
-                                  strikePrice
-                                  units
-                                  unitsLeft
-                                  writer
+                                    id
+                                    name
+                                    capPerUnit
+                                    countervalue
+                                    deadlineDate
+                                    expirationDate
+                                    hasToPay
+                                    isCall
+                                    desc
+                                    premium
+                                    strikePrice
+                                    units
+                                    unitsLeft
+                                    writer
                                 }
-                              }
-                            `
+                            }
+                        `
                     })
                 });
                 const data = await response.json();
                 if (data && data.data && data.data.options) {
                     setSidebarContent(data.data.options);
-                    console.log(data);
+
                 } else {
                     console.log('Data not received or empty:', data);
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
-
         };
 
+        // Fetch data initially
         fetchData();
+
+        // Fetch data every 4 seconds
+        const intervalId = setInterval(fetchData, 4000);
+
+        // Clean up interval on component unmount
+        return () => clearInterval(intervalId);
     }, []);
 
 
@@ -201,8 +241,8 @@ export default function CustomList() {
                         </td>
                         <td className="px-2 text-xs py-2">{option.premium}</td>
                         <td className="px-2 text-xs py-2">{option.unitsLeft}/{option.units}</td>
-                        <td className="px-2 text-xs py-2">{option.capPerUnit}</td>
-                        <td className="px-2 text-xs py-2">{option.strikePrice}</td>
+                        <td className="px-2 text-xs py-2">{option.capPerUnit / 1e6}$</td>
+                        <td className="px-2 text-xs py-2">{option.strikePrice / 1e6}$</td>
                         <td className="px-2 ">
                             <div className="stats  bg-primary text-primary-content">
 
@@ -297,13 +337,42 @@ export default function CustomList() {
                         </td>
 
                         <td className="px-4 w-40 relative">
-                        <BuyBtn optionId={option.id.toString()} premium={option.premium} maxunits={option.unitsLeft.toString()}  />
+                            <BuyBtn optionId={option.id.toString()} premium={option.premium} maxunits={option.unitsLeft.toString()} />
                         </td>
-                        <td className="px-2 text-xs py-2"> <button type="button" onClick={() => { }} className="text-white text-xs bg-gradient-to-r from-blue-500 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:outline-none dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-1 text-center">
-
-                            <span style={{ fontSize: ".875em", marginRight: ".125em", position: "relative", top: "-.25em", left: "-.125em" }}>
-                                📄<span style={{ position: "absolute", top: ".25em", left: ".25em" }}>📄</span>
-                            </span></button></td>
+                        <td className="px-2 text-xs py-2 relative">
+                            <div className="inline-block relative">
+                                <button
+                                    type="button"
+                                    onClick={() => { setCopy(option.id); setCopyNotificationId(option.id); }}
+                                    className="text-white text-xs bg-gradient-to-r from-blue-500 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:outline-none dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-1 text-center"
+                                >
+                                    <span style={{ fontSize: ".875em", marginRight: ".125em", position: "relative", top: "-.25em", left: "-.125em" }}>
+                                        📄<span style={{ position: "absolute", top: ".25em", left: ".25em" }}>📄</span>
+                                    </span>
+                                </button>
+                                {copyNotificationId === option.id && (
+                                 <>  <div className="absolute top-4 mr-2 bg-gray-200 text-gray-800 rounded p-1 text-xs shadow-md" style={{animation: `scaleOpacityAnimation  1.2s forwards`,  opacity: 1}}>
+                                   Copied!
+                               </div>
+                               
+                               <style>{`
+                            @keyframes scaleOpacityAnimation {
+                                0% {
+                                    opacity: 1;
+                                }
+                            
+                                50% {
+                                    opacity: 1;
+                                }
+                                100% {
+                                    opacity: 0;
+                                }
+                            }
+                        `}
+                        </style></>
+                                )}
+                            </div>
+                        </td>
 
 
                         <button

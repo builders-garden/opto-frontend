@@ -3,8 +3,13 @@ import { LinkComponent } from './LinkComponent'
 import { SITE_EMOJI } from '@/utils/site'
 import { Connect } from './Connect'
 import Opto from '@/assets/icons/opto.png'
+import Mint from './Mint'
+
 
 export function Header() {
+
+
+
   return (
     <header className='navbar sticky top-[0vh] z-20 border-solid border-bottom border-indigo-400 flex justify-between p-8 pt-0 pb-0 bg-primary text-neutral-content shadow-lg'>
       <div className='flex-grow px-4  max-w-6xl mx-auto'>
@@ -22,8 +27,12 @@ export function Header() {
         <LinkComponent href='/pages/dashboard'>
           <h1 className='text-xl font-bold'>Dashboard</h1>
         </LinkComponent>
+        <div className='flex gap-4 items-center'>
+        <Mint />
       </div>
-
+      </div>
+      
+     
       <div className='flex gap-4 items-center'>
         <Connect />
       </div>

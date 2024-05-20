@@ -26,7 +26,7 @@ export default function Owned() {
         amazon: amazon.src,
         apple: apple.src,
         coinbase: coinbase.src,
-        google: google.src,
+        alphabet: google.src,
         microsoft: microsoft.src,
         nvidia: nvidia.src,
         tesla: tesla.src,
@@ -61,8 +61,11 @@ export default function Owned() {
                                         capPerUnit
                                         responseValue
                                         expirationDate
+                                        hasToPay
                                     }
                                     units
+                                    claimed
+                                    errorClaim
                                 }
                             }
                         `
@@ -162,9 +165,7 @@ export default function Owned() {
                         <th scope="col" className="px-2 py-3">
                             Strike Price
                         </th>
-                        <th scope="col" className="px-2 py-3">
-                            Current Price
-                        </th>
+               
                         <th scope="col" className="px-2 py-3">
                             Max Profit
                         </th>
@@ -184,7 +185,17 @@ export default function Owned() {
                         <tr key={index} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">
                             <td className="w-4">
                                 <div className="flex">
-                                    <img className="w-10 ml-2 h-10 rounded-full opacity-100" src={imgMapping[mapping.option.name.toLowerCase()] || custom.src} />
+                                {((imgMapping[mapping.option.name.toLowerCase()] || custom.src) && 
+    (mapping.option.name.toLowerCase() !== "gaseth" &&
+    mapping.option.name.toLowerCase() !== "blobeth" &&
+    mapping.option.name.toLowerCase() !== "gasbnb" &&
+    mapping.option.name.toLowerCase() !== "gasavax")
+) ? (
+    <img className="w-10 ml-2 h-10 rounded-full opacity-100" src={imgMapping[mapping.option.name.toLowerCase()] || custom.src} />
+) : (
+    <img className="w-10 ml-2 h-7 rounded-full opacity-100" src={imgMapping[mapping.option.name.toLowerCase()] || custom.src} />
+)}
+
                                     <div className="font-normal text-xs text-gray-400">#{mapping.option.id}</div>
                                 </div>
                             </td>
@@ -201,13 +212,11 @@ export default function Owned() {
                                 {mapping.units}
                             </td>
                             <td className="px-2 py-2 text-xs">
-                                {mapping.option.strikePrice} $
+                                {mapping.option.strikePrice / 1e6} $
                             </td>
+           
                             <td className="px-2 py-2 text-xs">
-                                curr price
-                            </td>
-                            <td className="px-2 py-2 text-xs">
-                                {mapping.option.capPerUnit * mapping.units} $
+                                {(mapping.option.capPerUnit * mapping.units ) / 1e6} $
                             </td>
                             <td className="px-2 ">
                                 <div className="stats bg-primary text-primary-content">
@@ -257,11 +266,11 @@ export default function Owned() {
                             </td>
 
                             <td className="px-2 py-2 text-xs">
-                                {mapping.option.responseValue ? mapping.option.responseValue : " "} $
+                                {mapping.option.responseValue ? (mapping.option.responseValue / 1000000).toFixed(6) : "-"} $
                             </td>
                             <td className="px-2 py-2 text-xs">
-                                {mapping.option.claimed}
-                                <ClaimBtn optionId={mapping.option.id}/>
+                                {!mapping.claimed && mapping.option.hasToPay && <ClaimBtn optionId={mapping.option.id}/>}
+                                {mapping.claimed && <><button type="submit" className="text-white mt-2 bg-gradient-to-r from-slate-500 via-slate-600 to-slate-700 hover:bg-gradient-to-br focus:outline-none shadow-lg shadow-slate-500/50 dark:shadow-lg font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2 " disabled>Claimed</button></>}
                             </td>
                         </tr>
                     ))}

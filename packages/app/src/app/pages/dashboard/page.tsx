@@ -17,12 +17,7 @@ export default function Dashboard() {
 
 
                 <div className="relative p-2 overflow-x-auto shadow-md sm:rounded-lg">
-                    <div className="form-control w-34 absolute right-6">
-                        <label className="label cursor-pointer">
-                            <span className="label-text text-xs">Show expired &nbsp;</span>
-                            <input type="checkbox" className="toggle toggle-xs" />
-                        </label>
-                    </div>
+                
                     <div role="tablist" className="tabs tabs-lifted">
 
                         <input type="radio" name="my_tabs_2" role="tab" className="tab bg-slate-200" aria-label="Owned" defaultChecked />

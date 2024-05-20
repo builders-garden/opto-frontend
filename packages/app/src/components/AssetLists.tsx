@@ -8,6 +8,8 @@ import misc from '@/utils/list-misc'
 import WriteOptionForm from './WriteForm';
 import CustomList from './CustomList';
 import BuyBtn from './BuyBtn'
+import CurrentPrice from './CurrPrice';
+
 export default function AssetLists() {
     const [isWriteOptionOpen, setIsWriteOptionOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false); // State to track modal open/close
@@ -16,11 +18,13 @@ export default function AssetLists() {
     const [selectedImg, setSelectedImg] = useState('');
     const [writingUrl, setwritingUrl] = useState('');
     const [writingName, setWritingName] = useState('');
-    const handleBuyClick = (item: string, img: string) => {
+    const [selectedAddress, setSelectedAddress] = useState('');
+    const handleBuyClick = (item: string, img: string,address: string) => {
         // Update state or perform actions based on the item clicked
         setSelectedItem(item);
         setIsModalOpen(true);
         setSelectedImg(img);
+        setSelectedAddress(address);
         // Delay triggering the click event to allow time for the element to be available
         setTimeout(() => {
             const drawer = document.getElementById('my-drawer-4');
@@ -43,7 +47,7 @@ export default function AssetLists() {
         });
     };
 
-
+    
 
 
 
@@ -67,7 +71,7 @@ export default function AssetLists() {
             if (selectedItem) {
                 try {
                     const currentTimestamp = Math.floor(Date.now() / 1000);
-
+    
                     const response = await fetch('https://api.studio.thegraph.com/query/73482/opto/version/latest', {
                         method: 'POST',
                         headers: {
@@ -97,19 +101,28 @@ export default function AssetLists() {
                     const data = await response.json();
                     if (data && data.data && data.data.options) {
                         setSidebarContent(data.data.options);
-                        console.log(sidebarContent);
                     }
                 } catch (error) {
                     console.error('Error fetching data:', error);
                 }
             }
         };
-
+    
+        // Fetch data initially if modal is open and item is selected
         if (isModalOpen && selectedItem) {
             fetchData();
         }
+    
+        // Fetch data every 4 seconds if modal is open and item is selected
+        const intervalId = setInterval(() => {
+            if (isModalOpen && selectedItem) {
+                fetchData();
+            }
+        }, 4000);
+    
+        // Clean up interval on component unmount or when modal is closed or item is unselected
+        return () => clearInterval(intervalId);
     }, [isModalOpen, selectedItem]);
-
 
     const handleCounter = (expirationTimestamp: number) => {
         const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
@@ -187,7 +200,7 @@ export default function AssetLists() {
                                         </td>
                                         <td className="px-4 py-4">
                                             {/* Modal toggle */}
-                                            <button type="button" onClick={() => handleBuyClick(item.assetName, item.imageUrl)} className="text-white text-xs  bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none  dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2 ">Buy</button>
+                                            <button type="button" onClick={() => handleBuyClick(item.assetName, item.imageUrl, item.address)} className="text-white text-xs  bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none  dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2 ">Buy</button>
                                             <button type="button" onClick={() => { setWritingName(item.assetName); setwritingUrl(item.imageUrl); setIsWriteOptionOpen(true) }} className="text-white text-xs  bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none  dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2 ">Write</button>
                                         </td>
                                     </tr>
@@ -258,7 +271,7 @@ export default function AssetLists() {
                                         </td>
                                         <td className="px-4 py-4">
                                             {/* Modal toggle */}
-                                            <button type="button" onClick={() => handleBuyClick(item.assetName, item.imageUrl)} className="text-white text-xs  bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none  dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2 ">Buy</button>
+                                            <button type="button" onClick={() => handleBuyClick(item.assetName, item.imageUrl, item.address)} className="text-white text-xs  bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none  dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2 ">Buy</button>
                                             <button type="button" onClick={() => { setWritingName(item.assetName); setwritingUrl(item.imageUrl); setIsWriteOptionOpen(true) }} className="text-white text-xs  bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none  dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2 ">Write</button>
                                         </td>
                                     </tr>
@@ -324,7 +337,7 @@ export default function AssetLists() {
                                         <td className="px-4 py-4">
                                             {/* Modal toggle */}
 
-                                            <button type="button" onClick={() => handleBuyClick(item.assetName, item.imageUrl)} className="text-white text-xs  bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none  dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2 ">Buy</button>
+                                            <button type="button" onClick={() => handleBuyClick(item.assetName, item.imageUrl, item.address)} className="text-white text-xs  bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none  dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2 ">Buy</button>
                                             <button type="button" onClick={() => { setWritingName(item.assetName); setwritingUrl(item.imageUrl); setIsWriteOptionOpen(true) }} className="text-white text-xs  bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none  dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2 ">Write</button>
                                         </td>
                                     </tr>
@@ -360,7 +373,7 @@ export default function AssetLists() {
 
                                         <img className=" p-2 ml-2 h-16 rounded-full opacity-100" src={selectedImg} />
                                         <span className="text-2xl">{selectedItem}</span>
-                                        <span className="ml-4">Current price: <br /> 1340$ </span>
+                                        <CurrentPrice  feedAddress={selectedAddress}/>
 
                                     </div>
                                     {/* Sidebar content here */}
@@ -426,16 +439,16 @@ export default function AssetLists() {
                                                         </div>
                                                     </td>)}
                                                     <td className="w-4 px-6">
-                                                        ${option.premium}
+                                                        ${option.premium / 1e6}
                                                     </td>
                                                     <td className="px-4 ">
                                                         {option.unitsLeft}/{option.units}
                                                     </td>
                                                     <td className="px-4 ">
-                                                        ${option.capPerUnit}
+                                                        ${option.capPerUnit / 1e6}
                                                     </td>
                                                     <td className="px-4 ">
-                                                        ${option.strikePrice}
+                                                        ${option.strikePrice / 1e6}
                                                     </td>
                                                     <td className="px-2 w-50 ">
                                                         <div className="stats  bg-primary text-primary-content">

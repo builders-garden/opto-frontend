@@ -8,6 +8,7 @@ import {
 import { OptoAddress, OptoAbi } from '@/contracts/Opto_ABI';
 import { USDC_ABI, UsdcAddress } from '@/contracts/Usdc_ABI'
 import { useReadContract } from 'wagmi';
+import { polygonAmoy } from 'wagmi/chains'
 
 function BuyBtn({ optionId, maxunits, premium }) {
     const [transacting, setTransacting] = useState(false);
@@ -24,6 +25,18 @@ function BuyBtn({ optionId, maxunits, premium }) {
     const { isLoading: isConfirming, isSuccess: isConfirmed } =
         useWaitForTransactionReceipt({ hash });
     const [units, setUnits] = useState(""); // State to hold the input value
+
+
+     const { data: allowance } = useReadContract({
+        abi: USDC_ABI,
+        address: UsdcAddress,
+        functionName: "allowance",
+        args: [
+            account.address as `0x${string}`, 
+            OptoAddress  as `0x${string}`
+        ],
+        chainId: polygonAmoy.id
+    })
 
 
     const submit = async (e) => {
@@ -43,8 +56,11 @@ function BuyBtn({ optionId, maxunits, premium }) {
         
 
     }
+   
+
 
     useEffect(() => {
+       
         if (isConfirmed && step === 1) {
             const timeout = setTimeout(() => {
                 setStep(2);

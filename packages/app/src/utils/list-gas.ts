@@ -6,6 +6,7 @@ import blobeth from "@/assets/icons/assetlogos/blob-eth.png";
 
 interface Option {
     chain: string;
+    address: string;
     assetName: string;
     assetType: string;
     marketHours: string; // Always include this default as Ongoing
@@ -15,6 +16,7 @@ interface Option {
 const gasCosts : Option[] = [
     {
         chain: "Ethereum",
+        address: "",
         assetName: "Gas-Eth",
         assetType: "Base fee",
         marketHours: "Ongoing",
@@ -22,6 +24,7 @@ const gasCosts : Option[] = [
     },
     {
         chain: "Ethereum",
+        address: "",
         assetName: "Blob-Eth",
         assetType: "Blob base fee",
         marketHours: "Ongoing",
@@ -29,6 +32,7 @@ const gasCosts : Option[] = [
     },
     {
         chain: "Avalanche",
+        address: "",
         assetName: "Gas-Avax",
         assetType: "Base fee",
         marketHours: "Ongoing",
@@ -36,6 +40,7 @@ const gasCosts : Option[] = [
     },
     {
         chain: "Binance Smart Chain",
+        address: "",
         assetName: "Gas-Bnb",
         assetType: "Base fee",
         marketHours: "Ongoing",
