@@ -9,7 +9,9 @@ import {
 import { OptoAddress, OptoAbi } from '@/contracts/Opto_ABI';
 import { USDC_ABI, UsdcAddress } from '@/contracts/Usdc_ABI';
 import{polygonAmoy} from  'wagmi/chains';
-function CreateOption({ type, queryId, assetId }) {
+import CurrentPrice  from './CurrPrice'
+import GasCurrPrice  from './GasCurrPrice'
+function CreateOption({ type, queryId, assetId, feedAddress }) {
     const [transacting, setTransacting] = useState(false);
     const account = useAccount();
     const [allowance, setAllowance] = useState('');
@@ -226,9 +228,13 @@ function CreateOption({ type, queryId, assetId }) {
             )}
 
             <form className="p-4" onSubmit={submit}>
-                <div className='mt-4 ml-4 w-11/12 text-xs rounded-r-full bg-primary flex items-center'>
+                <div className='mt-4 mb-4 ml-4 w-11/12 text-xs rounded-r-full bg-primary flex items-center'>
                     <div className="flex items-center">
-                        <span className="ml-4">Current price: <br /> 1340$ </span>
+                    {feedAddress.startsWith('0x') ? (
+                <CurrentPrice feedAddress={feedAddress} />
+            ) : (
+                <GasCurrPrice url={feedAddress} queryId={queryId}/>
+            )}
                     </div>
                     <span className='text-right w-60'>  Call/Put</span>
                     <span className="ml-auto text-center">

@@ -1,42 +1,29 @@
 "use client";
-import React, { useEffect, useState } from 'react'
-import { useReadContract } from 'wagmi'
-import { arbitrum } from 'wagmi/chains'
+import React, { useEffect, useState } from 'react';
+import { useReadContract } from 'wagmi';
+import { arbitrum } from 'wagmi/chains';
+import { feedABI } from '@/contracts/ChainlinkFeed';
 
-
-
-export default function CurrentPrice({feedAddress}) {
+export default function CurrentPrice({ feedAddress }) {
     const [currentPrice, setCurrentPrice] = useState('');
 
-    
-
-   const feedABI  = [{"inputs":[],"name":"latestAnswer","outputs":[{"internalType":"int256","name":"","type":"int256"}],"stateMutability":"view","type":"function"}] as const
-
-  
-
-
-    const {data: result} =  useReadContract({
+    const { data: answer } = useReadContract({
         abi: feedABI,
-        address: feedAddress as `0x${string}`,
+        address: feedAddress,
         functionName: 'latestAnswer',
         args: [],
         chainId: arbitrum.id,
-      })
+    });
 
-
-      useEffect(() => {
-        console.log("coddio", result)
-        if (result) {
-            setCurrentPrice(result.toString());
+    useEffect(() => {
+        if (answer) {
+            setCurrentPrice(answer.toString());
         }
-    }, [result]);
+    }, [answer]);  // Add 'answer' as a dependency here
 
-
-  
     return (
         <>
-                                        <span className="ml-4">Current price: <br /> {currentPrice}</span>            
+            <span className="ml-4">Current price: <br /> {currentPrice / 1e8}$</span>
         </>
-
     );
 }

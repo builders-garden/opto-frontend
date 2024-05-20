@@ -44,7 +44,7 @@ const equities: Option[] = [
     {
         pair: "GOOGL / USD",
         address: "0x1D1a83331e9D255EB1Aaf75026B60dFD00A252ba",
-        assetName: "Alphabet",
+        assetName: "Google",
         assetType: "Equities",
         marketHours: "US_Equities",
         imageUrl: google.src

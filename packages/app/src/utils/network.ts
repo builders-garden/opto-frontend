@@ -1,6 +1,6 @@
-import { Chain, hardhat, polygonAmoy, sepolia } from 'viem/chains'
+import { Chain, hardhat, polygonAmoy, arbitrum, sepolia } from 'viem/chains'
 
-let chains = [polygonAmoy, sepolia] as [Chain, ...Chain[]]
+let chains = [polygonAmoy, arbitrum, sepolia] as [Chain, ...Chain[]]
 
 if (process.env.NODE_ENV !== 'production') chains.push(sepolia, hardhat)
 
@@ -19,7 +19,7 @@ export const NETWORK_COLORS = {
 
 export function GetNetworkColor(chain?: string, type: 'color' | 'bgVariant' = 'color') {
   chain = chain?.toLocaleLowerCase()
-  if (chain === 'polygonAmoy' || chain === 'mainnet' || chain === 'homestead') return NETWORK_COLORS.polygonAmoy[type]
+  if (chain === 'polygonAmoy' || chain === 'arbitrum' || chain === 'homestead') return NETWORK_COLORS.polygonAmoy[type]
 
 
   return NETWORK_COLORS.other[type]

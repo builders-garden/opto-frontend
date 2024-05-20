@@ -16,32 +16,32 @@ interface Option {
 const gasCosts : Option[] = [
     {
         chain: "Ethereum",
-        address: "",
-        assetName: "Gas-Eth",
+        address: "-",
+        assetName: "gaseth",
         assetType: "Base fee",
         marketHours: "Ongoing",
         imageUrl: gaseth.src
     },
     {
         chain: "Ethereum",
-        address: "",
-        assetName: "Blob-Eth",
+        address: "-",
+        assetName: "blobeth",
         assetType: "Blob base fee",
         marketHours: "Ongoing",
         imageUrl: blobeth.src
     },
     {
         chain: "Avalanche",
-        address: "",
-        assetName: "Gas-Avax",
+        address: "-",
+        assetName: "gasavax",
         assetType: "Base fee",
         marketHours: "Ongoing",
         imageUrl: gasavax.src
     },
     {
         chain: "Binance Smart Chain",
-        address: "",
-        assetName: "Gas-Bnb",
+        address: "-",
+        assetName: "gasbnb",
         assetType: "Base fee",
         marketHours: "Ongoing",
         imageUrl: gasbnb.src
