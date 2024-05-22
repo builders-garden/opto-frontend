@@ -9,8 +9,13 @@ import { OptoAddress, OptoAbi } from '@/contracts/Opto_ABI';
 import { USDC_ABI, UsdcAddress } from '@/contracts/Usdc_ABI'
 import { useReadContract } from 'wagmi';
 import { polygonAmoy } from 'wagmi/chains'
-
-function BuyBtn({ optionId, maxunits, premium }) {
+type BuyBtnProps = {
+    optionId: number;  
+    maxunits: number;
+    premium: number;  
+  };
+  
+  const BuyBtn: React.FC<BuyBtnProps> = ({ optionId, maxunits, premium }) => {
     const [transacting, setTransacting] = useState(false);
     const [step, setStep] = useState(0);
     const account = useAccount();
@@ -39,8 +44,8 @@ function BuyBtn({ optionId, maxunits, premium }) {
     })
 
 
-    const submit = async (e) => {
-        e.preventDefault(); // Preve
+    const submit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
         try {
             writeContract({
                 address: UsdcAddress,
@@ -52,11 +57,8 @@ function BuyBtn({ optionId, maxunits, premium }) {
             setStep(1)
         } catch (err) {
             console.error(err); // Log any errors
-        };
-        
-
+        };   
     }
-   
 
 
     useEffect(() => {

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-    type BaseError,
     useWaitForTransactionReceipt,
     useWriteContract,
     useAccount,
@@ -8,20 +7,29 @@ import {
 } from 'wagmi';
 import { OptoAddress, OptoAbi } from '@/contracts/Opto_ABI';
 import { USDC_ABI, UsdcAddress } from '@/contracts/Usdc_ABI';
-import{polygonAmoy} from  'wagmi/chains';
-import CurrentPrice  from './CurrPrice'
-import GasCurrPrice  from './GasCurrPrice'
-function CreateOption({ type, queryId, assetId, feedAddress }) {
+import { polygonAmoy } from 'wagmi/chains';
+import CurrentPrice from './CurrPrice';
+import GasCurrPrice from './GasCurrPrice';
+
+interface CreateOptionProps {
+    type: number;
+    queryId: number;
+    assetId: number;
+    feedAddress: string;
+}
+
+function CreateOption({ type, queryId, assetId, feedAddress }: CreateOptionProps) {
     const [transacting, setTransacting] = useState(false);
     const account = useAccount();
     const [allowance, setAllowance] = useState('');
     const [strike, setStrike] = useState('');
     const [premium, setPremium] = useState('');
     const [units, setUnits] = useState('');
-    const [expirationDate, setExpirationDate] = useState('');
-    const [deadlineDate, setDeadlineDate] = useState('');
+    const [expirationDate, setExpirationDate] = useState(BigInt(0));
+    const [deadlineDate, setDeadlineDate] = useState(BigInt(0));
     const [isCall, setIsCall] = useState(false); 
     const [capPerUnit, setCapPerUnit] = useState('');
+    const [lockedUSDC, setLockedUSDC] = useState(0);
 
     const [step, setStep] = useState(0);
     const {
@@ -31,59 +39,56 @@ function CreateOption({ type, queryId, assetId, feedAddress }) {
         writeContract
     } = useWriteContract();
 
-
     const { isLoading: isConfirming, isSuccess: isConfirmed } =
         useWaitForTransactionReceipt({ hash });
 
+    const convertToWei = (value: string) => {
+        return BigInt(Math.floor(parseFloat(value) * 10**6));
+    };
 
-        // const {  result } = useReadContract({
-        //     abi: USDC_ABI,
-        //     address: UsdcAddress,
-        //     functionName: "allowance",
-        //     args: [
-        //       account as `0x${string}`,
-        //       OptoAddress
-        //     ],
-        //     chain: polygonAmoy.id
-        //   });
-        //   useEffect(()=>{
-        //     console.log("fuck", result)
-        
-        //   },[])
-          
-          
-    const submit = async (e) => {
+    const isValidInput = (value: string) => {
+        return parseFloat(value) >= 0.000001;
+    };
+
+    const submit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const formData = new FormData(e.target);
-        const strike = formData.get('strike');
-        const premium = formData.get('premium');
-        const units = formData.get('units');
-        const expirationDate = formData.get('expirationDate');
-        const deadlineDate = formData.get('deadlineDate');
-        const capPerUnit = formData.get('capPerUnit');
-        const unixDead = BigInt(Math.floor(new Date(deadlineDate).getTime() / 1000));
-        const unixExp = BigInt(Math.floor(new Date(expirationDate).getTime() / 1000));
-        const isCallValue = formData.get('isCall') === 'on'; // Checkbox returns 'on' if checked
+        const formData = new FormData(e.target as HTMLFormElement);
+        const s_strike = formData.get('strike') as string;
+        const s_premium = formData.get('premium') as string;
+        const s_units = formData.get('units') as string;
+        const s_expirationDate = formData.get('expirationDate') as string;
+        const s_deadlineDate = formData.get('deadlineDate') as string;
+        const s_capPerUnit = formData.get('capPerUnit') as string;
 
-        setIsCall(!isCallValue);
-        setStrike(strike);
-        setPremium(premium);
-        setUnits(units);
+        const unixDead = BigInt(Math.floor(new Date(s_deadlineDate).getTime() / 1000));
+        const unixExp = BigInt(Math.floor(new Date(s_expirationDate).getTime() / 1000));
+        if (!isValidInput(s_strike) || !isValidInput(s_premium) || !isValidInput(s_capPerUnit)) {
+            alert('Values must be at least 0.000001');
+            return;
+        }
+
+    
+        const isCallValue = formData.get('isCall') === 'on'; 
+
+        setIsCall(isCallValue);
+        setStrike(s_strike);
+        setPremium(s_premium);
+        setUnits(s_units);
         setExpirationDate(unixExp);
         setDeadlineDate(unixDead);
-        setCapPerUnit(capPerUnit);
+        setCapPerUnit(s_capPerUnit);
         setStep(1);
         setTransacting(true);
-        
+
         try {
             await writeContract({
                 address: UsdcAddress,
                 abi: USDC_ABI,
                 functionName: 'approve',
-                args: [OptoAddress, BigInt(units) * BigInt(capPerUnit)],
+                args: [OptoAddress, BigInt(units) * convertToWei(s_capPerUnit)],
             });
         } catch (err) {
-            console.error(err); // Log any errors
+            console.error(err);
         }
     };
 
@@ -91,27 +96,26 @@ function CreateOption({ type, queryId, assetId, feedAddress }) {
         if (isConfirmed && step === 1) {
             const timeout = setTimeout(() => {
                 setStep(2);
-                console.log("coddiaccio");
                 try {
                     writeContract({
                         address: OptoAddress,
                         abi: OptoAbi,
                         functionName: 'createOption',
                         args: [
-                            isCall,
-                            BigInt(premium),
-                            BigInt(strike),
-                            BigInt(deadlineDate),
-                            BigInt(expirationDate),
+                            !isCall,
+                            convertToWei(premium),
+                            convertToWei(strike),
+                            deadlineDate,
+                            expirationDate,
                             type,
                             BigInt(queryId),
                             BigInt(assetId),
                             BigInt(units),
-                            BigInt(capPerUnit)
+                            convertToWei(capPerUnit)
                         ],
                     });
                 } catch (err) {
-                    console.error(err); // Log any errors
+                    console.error(err);
                 }
             }, 3000);
 
@@ -134,6 +138,16 @@ function CreateOption({ type, queryId, assetId, feedAddress }) {
             return () => clearTimeout(timeout);
         }
     }, [error]);
+
+    useEffect(() => {
+        const capValue = parseFloat(capPerUnit);
+        const unitsValue = parseFloat(units);
+        if (!isNaN(capValue) && !isNaN(unitsValue)) {
+            setLockedUSDC(capValue * unitsValue);
+        } else {
+            setLockedUSDC(0);
+        }
+    }, [capPerUnit, units]);
 
     return (
         <>
@@ -214,14 +228,17 @@ function CreateOption({ type, queryId, assetId, feedAddress }) {
                         {hash && (
                             <div className='mt-2'>
                                 <a
-                                    className='bg-slate-200 border border-slate-400 p-0.5 px-1 rounded-md inline-block'
-                                    href={`https://testnet.snowtrace.io/tx/${hash}`}
-                                    target="_blank" rel="noopener noreferrer"
-                                > View on Explorer</a>
+                                    className='bg-neutral px-2 py-2 w-full rounded-lg text-xs text-white'
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    href={`https://amoy.polygonscan.com/tx/${hash}`}
+                                >
+                                    View on polygonscan
+                                </a>
                             </div>
                         )}
-                        {error && (
-                            <div>Error: {(error as BaseError).shortMessage || error.message}</div>
+                           {error && (
+                            <div>Error: {(error as any).shortMessage || error.message}</div>
                         )}
                     </div>
                 </div>
@@ -230,11 +247,11 @@ function CreateOption({ type, queryId, assetId, feedAddress }) {
             <form className="p-4" onSubmit={submit}>
                 <div className='mt-4 mb-4 ml-4 w-11/12 text-xs rounded-r-full bg-primary flex items-center'>
                     <div className="flex items-center">
-                    {feedAddress.startsWith('0x') ? (
-                <CurrentPrice feedAddress={feedAddress} />
-            ) : (
-                <GasCurrPrice url={feedAddress} queryId={queryId}/>
-            )}
+                        {feedAddress.startsWith('0x') ? (
+                            <CurrentPrice feedAddress={feedAddress} />
+                        ) : (
+                            <GasCurrPrice url={feedAddress} queryId={queryId} />
+                        )}
                     </div>
                     <span className='text-right w-60'>  Call/Put</span>
                     <span className="ml-auto text-center">
@@ -246,32 +263,74 @@ function CreateOption({ type, queryId, assetId, feedAddress }) {
                     </span>
                 </div>
 
-                <label className="input p-3 input-bordered flex items-center gap-3">
+                <label className="input p-3  text-xs input-bordered flex items-center gap-3">
                     Strike
-                    <input name="strike" type="text" className="focus:outline-none grow p-3 text-right" required />
+                    <input
+                        name="strike"
+                        type="number"
+                        step="0.000001"
+                        min="0.000001"
+                        className="focus:outline-none grow p-3 text-right"
+                        required
+                    />
                 </label>
-                <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
+                <label className="input p-3  text-xs mt-2 input-bordered flex items-center gap-3">
                     Premium cost
-                    <input name="premium" type="text" className="focus:outline-none grow p-3 text-right" required />
+                    <input
+                        name="premium"
+                        type="number"
+                        step="0.000001"
+                        min="0.000001"
+                        className="focus:outline-none grow p-3 text-right"
+                        required
+                    />
                 </label>
-                <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
+                <label className="input p-3  text-xs mt-2 input-bordered flex items-center gap-3">
                     Units
-                    <input name="units" type="text" className="focus:outline-none grow p-3 text-right" required />
+                    <input
+                        name="units"
+                        type="number"
+                        step="0.000001"
+                        min="0.000001"
+                        className="focus:outline-none grow p-3 text-right"
+                        required
+                        onChange={(e) => setUnits(e.target.value)}
+                    />
                 </label>
-                <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
+                <label className="input p-3  text-xs mt-2 input-bordered flex items-center gap-3">
                     Cap per unit
-                    <input name="capPerUnit" type="text" className="focus:outline-none grow p-3 text-right" required />
+                    <input
+                        name="capPerUnit"
+                        type="number"
+                        step="0.000001"
+                        min="0.000001"
+                        className="focus:outline-none grow p-3 text-right"
+                        required
+                        onChange={(e) => setCapPerUnit(e.target.value)}
+                    />
                 </label>
-                <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
+                <label className="input p-3  text-xs mt-2 input-bordered flex items-center gap-3">
                     Expiration Date
-                    <input name="expirationDate" type="date" className="focus:outline-none grow p-3 text-right" required />
+                    <input
+                        name="expirationDate"
+                        type="datetime-local"
+                        className="focus:outline-none grow p-3 text-right"
+                        required
+                    />
                 </label>
-                <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
+                <label className="input p-3  text-xs mt-2 input-bordered flex items-center gap-3">
                     Buy-in deadline
-                    <input name="deadlineDate" type="date" className="focus:outline-none grow p-3 text-right" required />
+                    <input
+                        name="deadlineDate"
+                        type="datetime-local"
+                        className="focus:outline-none grow p-3 text-right"
+                        required
+                    />
                 </label>
                 <div className="flex items-center mt-4 justify-end">
-                    <span className="text-blue-500 mb-4 mr-4">Lock 93892 USDC</span>
+                    <span className="text-blue-500 mb-4 mr-4">
+                        Lock {lockedUSDC.toFixed(6)} USDC
+                    </span>
                     <button
                         type="submit"
                         className="text-white relative mb-4 mr-4 text-xs bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-3 py-1 text-center"

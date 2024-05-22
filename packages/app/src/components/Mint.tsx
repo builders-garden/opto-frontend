@@ -89,9 +89,7 @@ export default function Mint() {
                                 </a>
                             </div>
                         )}
-                        {error && (
-                            <div>Error: {(error as BaseError).shortMessage || error.message}</div>
-                        )}
+                        
                     </div>
                 </div>
             )}

@@ -9,7 +9,7 @@ import { OptoAddress, OptoAbi } from '@/contracts/Opto_ABI';
 import { USDC_ABI, UsdcAddress } from '@/contracts/Usdc_ABI'
 import { useReadContract } from 'wagmi';
 
-function ClaimBtn({ optionId }) {
+function ClaimBtn({ optionId }: { optionId: number }) {
     const [step, setStep] = useState(0);
     const [transacting, setTransacting] = useState(false);
     const account = useAccount();
@@ -26,7 +26,7 @@ function ClaimBtn({ optionId }) {
     const [units, setUnits] = useState(""); // State to hold the input value
 
 
-    const submit = async (e) => {
+    const submit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault(); // Preve
         setTransacting(true);
         try {

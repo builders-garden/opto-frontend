@@ -3,11 +3,12 @@ import { PropsWithChildren } from 'react'
 import { SITE_DESCRIPTION, SITE_EMOJI, SITE_INFO, SITE_NAME, SITE_URL } from '@/utils/site'
 import { Layout } from '@/components/Layout'
 import { Web3Provider } from '@/context/Web3'
-
+import opto from '@/assets/icons/opto.ico'
 import { cookieToInitialState } from 'wagmi'
 import { WALLETCONNECT_CONFIG } from '@/utils/web3'
 import { headers } from 'next/headers'
 import '../assets/globals.css'
+import bg from '@/assets/bg.jpg'
 
 export const metadata: Metadata = {
   applicationName: SITE_NAME,
@@ -55,13 +56,13 @@ export default function RootLayout(props: PropsWithChildren) {
       <head>
         <link
           rel='icon'
-          href={`data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${SITE_EMOJI}</text></svg>`}
+          href={opto.src}
         />
       </head>
 
       <body>
         <Web3Provider initialState={initialState}>
-
+    
             <Layout>{props.children}</Layout>
     
         </Web3Provider>

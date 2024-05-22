@@ -13,7 +13,7 @@ const config: Config = {
         "primary": "#fff",
         "secondary": "#fffbd8",
         "accent": "#375bd2",
-        "neutral": "#dfdfdf",
+        "neutral": "#cbd5e1",
         "base-100": "#ffffff",
       },
     }],

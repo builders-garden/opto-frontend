@@ -11,8 +11,15 @@ import {
     useAccount,
     useReadContract
 } from 'wagmi'
+import { FC } from 'react'; // Import FC type for functional components
 
-const WriteCustomForm = ({ onClose }) => {
+interface WriteCustomFormProps {
+    url: string;
+    name: string;
+    onClose: () => void;
+}
+
+const WriteCustomForm: FC<WriteCustomFormProps> = ({ url: writingUrl, name, onClose }) => {
     const [code, setCode] = useState(
         `Paste your Function() script here.  //Avoid comments like this`
     );
@@ -40,6 +47,13 @@ const WriteCustomForm = ({ onClose }) => {
     const { isLoading: isConfirming, isSuccess: isConfirmed } =
         useWaitForTransactionReceipt({ hash });
 
+    const convertToWei = (value: string) => {
+        return BigInt(Math.floor(parseFloat(value) * 10**6));
+    };
+
+    const isValidInput = (value: string) => {
+        return parseFloat(value) >= 0.000001;
+    };
 
     const submit = async (e: React.FormEvent<HTMLFormElement>) => {
 
@@ -49,31 +63,36 @@ const WriteCustomForm = ({ onClose }) => {
         const formData = new FormData(e.target as HTMLFormElement)
 
         const rawScript = formData.get('script') as string
-
-
-        const strike = formData.get('strike') as string
-        const premium = formData.get('premium') as string
-        const units = formData.get('units') as string
-        const expirationDate = formData.get('expirationDate') as string
-        const deadlineDate = formData.get('deadlineDate') as string
-        const opName = formData.get('name') as string
-        const desc = formData.get('description') as string
-        const capPerUnit = formData.get('capPerUnit') as string
-        const unixDead = BigInt(Math.floor(new Date(deadlineDate).getTime() / 1000));
-        const unixExp = BigInt(Math.floor(new Date(expirationDate).getTime() / 1000));
+        const s_strike = formData.get('strike') as string;
+        const s_premium = formData.get('premium') as string;
+        const s_units = formData.get('units') as string;
+        const s_expirationDate = formData.get('expirationDate') as string;
+        const s_deadlineDate = formData.get('deadlineDate') as string;
+        const s_capPerUnit = formData.get('capPerUnit') as string;
+        const s_opName = formData.get('name') as string
+        const s_desc = formData.get('description') as string
         const isCallValue = formData.get('isCall');
-        const isCall = isCallValue === 'true'; // Convert string to boolean
+        const s_isCall = isCallValue === 'true'; // Convert string to boolean
+        const unixDead = BigInt(Math.floor(new Date(s_deadlineDate).getTime() / 1000));
+        const unixExp = BigInt(Math.floor(new Date(s_expirationDate).getTime() / 1000));
+        if (!isValidInput(s_strike) || !isValidInput(s_premium) || !isValidInput(s_capPerUnit)) {
+            alert('Values must be at least 0.000001');
+            return;
+        }
+
+  
+
         setRawScript(rawScript);
-        setOpName(opName);
-        setDesc(desc);
-        setIsCall(!!isCall);
-        setStrike(strike);
-        setPremium(premium);
-        setUnits(units);
+        setOpName(s_opName);
+        setDesc(s_desc);
+        setIsCall(!!s_isCall);
+        setStrike(s_strike);
+        setPremium(s_premium);
+        setUnits(s_units);
         setExpirationDate(unixExp);
         setDeadlineDate(unixDead);
-        setIsCall(isCall);
-        setCapPerUnit(capPerUnit);
+        setIsCall(s_isCall);
+        setCapPerUnit(s_capPerUnit);
         setStep(1);
         setTransacting(true)
         try {
@@ -81,7 +100,7 @@ const WriteCustomForm = ({ onClose }) => {
                 address: UsdcAddress,
                 abi: USDC_ABI,
                 functionName: 'approve',
-                args: [OptoAddress, BigInt(units) * BigInt(capPerUnit)], // Convert units to BigInt
+                args: [OptoAddress, BigInt(units) * convertToWei(capPerUnit)], // Convert units to BigInt
             });
         } catch (err) {
             console.error(err); // Log any errors
@@ -92,13 +111,13 @@ const WriteCustomForm = ({ onClose }) => {
         if (isConfirmed && step === 1) {
             const timeout = setTimeout(() => {
                 setStep(2);
-                console.log("coddiaccio")
+         
                 try {
                     writeContract({
                         address: OptoAddress,
                         abi: OptoAbi,
                         functionName: 'createCustomOption',
-                        args: [!isCall, BigInt(premium), BigInt(strike), BigInt(deadlineDate), BigInt(expirationDate), BigInt(units), BigInt(capPerUnit), rawScript, [], opName, desc ], // Convert units to BigInt
+                        args: [!isCall, convertToWei(premium), convertToWei(strike), BigInt(deadlineDate), BigInt(expirationDate), BigInt(units), convertToWei(capPerUnit), rawScript, [], opName, desc ], // Convert units to BigInt
                     });  
                 } catch (err) {
                     console.error(err); // Log any errors
@@ -132,9 +151,103 @@ const WriteCustomForm = ({ onClose }) => {
 
 
     return (
+<>
+        {transacting && (
+            <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center backdrop-blur-[1px] bg-gray-900 bg-opacity-30 z-30">
+                <div className="bg-primary items-center text-center text-sm rounded-lg p-6 h-36 w-80">
+                    {!isConfirmed && !error ? (
+                        <span className="loading loading-color loading-ring text-success mb-4 loading-lg"></span>
+                    ) : !error ? (
+                        <div className="flex mb-2 items-center justify-center">
+                            <div
+                                className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center"
+                                style={{
+                                    animation: `scaleOpacityAnimation 0.4s ease-out forwards`,
+                                    transformOrigin: 'center',
+                                    transform: 'scale(0)',
+                                    opacity: 0,
+                                }}
+                            >
+                                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <style>{`
+                                @keyframes scaleOpacityAnimation {
+                                0% {
+                                    transform: scale(0);
+                                    opacity: 0;
+                                }
+                                65% {
+                                    opacity: 0.5;
+                                }
+                                100% {
+                                    transform: scale(0.6);
+                                    opacity: 1;
+                                }
+                                }
+                            `}</style>
+                        </div>
+                    ) : (
+                        <div className="flex mb-2 items-center justify-center">
+                            <div
+                                className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center"
+                                style={{
+                                    animation: `scaleOpacityAnimation 0.7s ease-out forwards`,
+                                    transformOrigin: 'center',
+                                    transform: 'scale(0)',
+                                    opacity: 0,
+                                }}
+                            >
+                                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
+                            <style>{`
+                                @keyframes scaleOpacityAnimation {
+                                0% {
+                                    transform: scale(0);
+                                    opacity: 0;
+                                }
+                                65% {
+                                    opacity: 0.5;
+                                }
+                                100% {
+                                    transform: scale(0.6);
+                                    opacity: 1;
+                                }
+                                }
+                            `}</style>
+                        </div>
+                    )}
+
+                    {transacting && !isConfirming && !error && !isConfirmed && (
+                        <div>Waiting for user confirmation . . .</div>
+                    )}
+                    {isConfirming && !error && <div>Waiting for confirmation...</div>}
+                    {isConfirmed && <div>Transaction confirmed.</div>}
+                    {hash && (
+                        <div className='mt-2'>
+                            <a
+                                className='bg-neutral px-2 py-2 w-full rounded-lg text-xs text-white'
+                                target='_blank'
+                                rel='noopener noreferrer'
+                                href={`https://amoy.polygonscan.com/tx/${hash}`}
+                            >
+                                View on polygonscan
+                            </a>
+                        </div>
+                    )}
+                       {error && (
+                        <div>Error: {(error as any).shortMessage || error.message}</div>
+                    )}
+                </div>
+            </div>
+        )}
+
         <div className='items-center w-full'>
 
-            <div id="crud-modal" aria-hidden="true" className="fixed inset-0 w-full z-50 flex justify-center items-center bg-black bg-opacity-50">
+            <div id="crud-modal" aria-hidden="true" className="fixed inset-0 w-full z-20 flex justify-center items-center bg-black bg-opacity-50">
                 <div className="bg-white w-8/12 rounded-lg shadow-lg">
                     <div className="flex items-center justify-between p-4 border-b">
                         <img className="w-10 ml-4 h-10 rounded-full opacity-100" src={custom.src} />
@@ -164,27 +277,57 @@ const WriteCustomForm = ({ onClose }) => {
                                 Description
                                 <input name="description" type="text" className="grow p-3 text-right" required />
                             </label>
-                            <label className="input p-3 input-bordered flex items-center gap-3">
-                                Strike
-                                <input name="strike" type="text" className="focus:outline-none grow p-3 text-right " required />
-                            </label>
-                            <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
-                                Premium cost
-                                <input name="premium" type="text" className="focus:outline-none grow p-3 text-right " required />
-                            </label>
-                            <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
-                                Units
-                                <input name="units" type="text" className="focus:outline-none grow p-3 text-right" required />
-                            </label>
-                            <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
-                                Cap per unit
-                                <input name="capPerUnit" type="text" className="focus:outline-none grow p-3 text-right " required />
-                            </label>
-                            <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
+                            <label className="input p-3  text-xs input-bordered flex items-center gap-3">
+                    Strike
+                    <input
+                        name="strike"
+                        type="number"
+                        step="0.000001"
+                        min="0.000001"
+                        className="focus:outline-none grow p-3 text-right"
+                        required
+                    />
+                </label>
+                <label className="input p-3  text-xs mt-2 input-bordered flex items-center gap-3">
+                    Premium cost
+                    <input
+                        name="premium"
+                        type="number"
+                        step="0.000001"
+                        min="0.000001"
+                        className="focus:outline-none grow p-3 text-right"
+                        required
+                    />
+                </label>
+                <label className="input p-3  text-xs mt-2 input-bordered flex items-center gap-3">
+                    Units
+                    <input
+                        name="units"
+                        type="number"
+                        step="0.000001"
+                        min="0.000001"
+                        className="focus:outline-none grow p-3 text-right"
+                        required
+                        onChange={(e) => setUnits(e.target.value)}
+                    />
+                </label>
+                <label className="input p-3  text-xs mt-2 input-bordered flex items-center gap-3">
+                    Cap per unit
+                    <input
+                        name="capPerUnit"
+                        type="number"
+                        step="0.000001"
+                        min="0.000001"
+                        className="focus:outline-none grow p-3 text-right"
+                        required
+                        onChange={(e) => setCapPerUnit(e.target.value)}
+                    />
+                </label>
+                            <label className="input  text-xs p-3 mt-2 input-bordered flex items-center gap-3">
                                 Expiration Date
                                 <input name="expirationDate" type="date" className="focus:outline-none grow p-3 text-right" required />
                             </label>
-                            <label className="input p-3 mt-2 input-bordered flex items-center gap-3">
+                            <label className="input  text-xs p-3 mt-2 input-bordered flex items-center gap-3">
                                 Buy-in deadline
                                 <input name="deadlineDate" type="date" className="focus:outline-none grow p-3 text-right" required />
                             </label>
@@ -224,6 +367,7 @@ const WriteCustomForm = ({ onClose }) => {
                 </div>
             </div >
         </div >
+        </>
     );
 };
 

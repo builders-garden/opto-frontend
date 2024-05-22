@@ -4,7 +4,12 @@ import { useReadContract } from 'wagmi';
 import { arbitrum } from 'wagmi/chains';
 import { feedABI } from '@/contracts/ChainlinkFeed';
 
-export default function GasCurrPrice({ url, queryId }) {
+interface GasCurrPriceProps {
+    url: string;
+    queryId: number;
+}
+
+export default function GasCurrPrice({ url, queryId }: GasCurrPriceProps) {
     const [currentPrice, setCurrentPrice] = useState(0);
     const [currentEthPrice, setEthCurrentPrice] = useState(0);
 
@@ -80,7 +85,8 @@ export default function GasCurrPrice({ url, queryId }) {
     const finalValue = Math.floor((Number(currentEthPrice) * Number(currentPrice)) / 1e6) / 1e6;
     return (
         <>
-            <span className="ml-4">Current price: <br /> {Number(currentPrice) }$ {finalValue}</span>
+            <span className="ml-4">Current price: <br />  {finalValue}$</span>
+         
         </>
     );
 }

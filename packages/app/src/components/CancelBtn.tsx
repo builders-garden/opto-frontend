@@ -9,7 +9,10 @@ import { OptoAddress, OptoAbi } from '@/contracts/Opto_ABI';
 import { USDC_ABI, UsdcAddress } from '@/contracts/Usdc_ABI'
 import { useReadContract } from 'wagmi';
 
-function CancelBtn({ optionId }) {
+
+
+
+function CancelBtn({ optionId }: { optionId: number }) {
     const [transacting, setTransacting] = useState(false);
     const account = useAccount();
     const {
@@ -25,7 +28,7 @@ function CancelBtn({ optionId }) {
     const [units, setUnits] = useState(""); // State to hold the input value
 
 
-    const submit = async (e) => {
+    const submit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault(); 
         setTransacting(true);// Preve
         try {
@@ -148,7 +151,7 @@ function CancelBtn({ optionId }) {
     <form style={{ position: 'relative' }} onSubmit={submit}>
 
         <button type="submit" className="text-white mt-2 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:outline-none 
-          shadow-lg shadow-blue-500/5font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2 ">
+          shadow-lg shadow-blue-500/5font-medium rounded-lg text-sm px-1 text-center me-2 mb-2 ">
             Cancel
     
         </button>

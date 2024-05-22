@@ -4,12 +4,16 @@ import { useReadContract } from 'wagmi';
 import { arbitrum } from 'wagmi/chains';
 import { feedABI } from '@/contracts/ChainlinkFeed';
 
-export default function CurrentPrice({ feedAddress }) {
+interface CurrentPriceProps {
+    feedAddress: string;
+}
+
+export default function CurrentPrice({ feedAddress }: CurrentPriceProps) {
     const [currentPrice, setCurrentPrice] = useState('');
 
     const { data: answer } = useReadContract({
         abi: feedABI,
-        address: feedAddress,
+        address: feedAddress as `0x${string}`,
         functionName: 'latestAnswer',
         args: [],
         chainId: arbitrum.id,
@@ -23,7 +27,7 @@ export default function CurrentPrice({ feedAddress }) {
 
     return (
         <>
-            <span className="ml-4">Current price: <br /> {currentPrice / 1e8}$</span>
+            <span className="ml-4">Current price: <br /> {Number(currentPrice) / 1e8}$</span>
         </>
     );
 }

@@ -1,4 +1,5 @@
 "use client";
+import { FC } from 'react'; // Import FC type for functional components
 
 import Ethereum from '@/assets/icons/ethereum.png'
 import React, { useEffect, useState } from 'react'
@@ -20,7 +21,7 @@ import { useAccount } from 'wagmi';
 import ClaimBtn from "./ClaimBtn"
 export default function Owned() {
     const [ownedOps, setOwnedOps] = useState<any[]>([]);
-    const imgMapping = {
+    const imgMapping: { [key: string]: string } = {
         gold: gold.src,
         silver: silver.src,
         amazon: amazon.src,
@@ -115,36 +116,7 @@ export default function Owned() {
 
     return (
         <>
-            <div className="stats stats-vertical gap-2 flex m-auto mb-4 lg:stats-horizontal shadow">
-
-                <div className="stat rounded-xl bg-slate-200">
-                    <div className="stat-title ">Active as Buyer</div>
-                    <div className="stat-value text-sm ">2</div>
-
-                </div>
-
-                <div className="stat rounded-xl bg-slate-200">
-                    <div className="stat-title">Total spent</div>
-                    <div className="stat-value text-sm ">200 $</div>
-                </div>
-
-
-                <div className="stat rounded-xl bg-slate-200">
-                    <div className="stat-title ">Ever Bought</div>
-                    <div className="stat-value text-sm ">2</div>
-
-                </div>
-
-                <div className="stat rounded-sm bg-slate-200">
-
-                </div>
-
-                <div className="stat rounded-xl bg-slate-200">
-                    <div className="stat-title">Total gain</div>
-                    <div className="stat-value text-sm  text-green-600">+1200$</div>
-                </div>
-
-            </div>
+          
             <table className="w-full text-sm text-center rtl:text-right text-gray-500 dark:text-gray-400">
                 <thead className="text-xs text-gray-700  bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
@@ -270,7 +242,7 @@ export default function Owned() {
                             </td>
                             <td className="px-2 py-2 text-xs">
                                 {!mapping.claimed && mapping.option.hasToPay && <ClaimBtn optionId={mapping.option.id}/>}
-                                {mapping.claimed && <><button type="submit" className="text-white mt-2 bg-gradient-to-r from-slate-500 via-slate-600 to-slate-700 hover:bg-gradient-to-br focus:outline-none shadow-lg shadow-slate-500/50 dark:shadow-lg font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2 " disabled>Claimed</button></>}
+                                {mapping.claimed && <><button type="submit" className="text-white mt-2 bg-gradient-to-r from-slate-500 via-slate-600 to-slate-700 hover:bg-gradient-to-br focus:outline-none shadow-lg shadow-slate-500/50 dark:shadow-lg font-medium rounded-lg text-sm px-1 text-center me-2 mb-2 " disabled>Claimed</button></>}
                             </td>
                         </tr>
                     ))}

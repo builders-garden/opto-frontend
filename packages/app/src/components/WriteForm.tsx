@@ -1,9 +1,20 @@
 import React from 'react';
 import CreateOption from './CreateOption';
+interface AssetDetails {
+    assetId: number | null;
+    type: number;
+    queryId: number;
+    address: string;
+}
 
-const WriteOptionForm = ({ url: writingUrl, name, onClose }) => {
-    // Define the asset mapping
-    const assetMapping = {
+interface WriteOptionFormProps {
+    url: string;
+    name: string; // Assuming name is a string
+    onClose: () => void;
+}
+
+const WriteOptionForm = ({ url, name, onClose }: WriteOptionFormProps) => {
+    const assetMapping: { [key: string]: AssetDetails } = {
         gold: { assetId: 9, type: 0, queryId: 0, address: "0x1F954Dc24a49708C26E0C1777f16750B5C6d5a2c" },
         silver: { assetId: 8, type: 0, queryId: 0, address: "0xC56765f04B248394CF1619D20dB8082Edbfa75b1" },
         amazon: { assetId: 2, type: 0, queryId: 0, address: "0xd6a77691f071E98Df7217BED98f38ae6d2313EBA" },
@@ -28,7 +39,7 @@ const WriteOptionForm = ({ url: writingUrl, name, onClose }) => {
             <div id="crud-modal" aria-hidden="true" className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50">
                 <div className="bg-white w-full max-w-md rounded-lg shadow-lg">
                     <div className="flex items-center justify-between p-4 border-b">
-                        <img className=" ml-4 h-10 rounded-full opacity-100" src={writingUrl} alt={name} />
+                        <img className=" ml-4 h-10 rounded-full opacity-100" src={url} alt={name} />
                         <h1 className='text-2xl'>{name}</h1>
                         <button type="button" className="text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg p-2" onClick={onClose}>
                             <svg className="w-4 h-4" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -37,7 +48,12 @@ const WriteOptionForm = ({ url: writingUrl, name, onClose }) => {
                             <span className="sr-only">Close modal</span>
                         </button>
                     </div>
-                    <CreateOption assetId={assetDetails.assetId} queryId={assetDetails.queryId} type={assetDetails.type} feedAddress={assetDetails.address} />
+                    <CreateOption 
+    assetId={assetDetails.assetId !== null ? assetDetails.assetId : 0} 
+    queryId={assetDetails.queryId} 
+    type={assetDetails.type} 
+    feedAddress={assetDetails.address} 
+/>
                 </div>
             </div>
         </div>

@@ -74,7 +74,7 @@ export default function CustomList() {
         });
     };
 
-    const handleCounter = (expirationTimestamp) => {
+    const handleCounter = (expirationTimestamp: number) => {
         const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
         const differenceSeconds = expirationTimestamp - currentTimestamp; // Difference in seconds
 
@@ -176,11 +176,15 @@ export default function CustomList() {
         <>
 
             {writingCustom && (
-                <WriteCustomForm onClose={handleCloseWriteOption} />
+             <WriteCustomForm
+             onClose={handleCloseWriteOption}
+             url="example-url"
+             name="example-name"
+         />
             )}
             <table className="w-full  text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
 
-                <thead className="text-xs w-full p-0 mx-0 text-gray-700  bg-secondary dark:bg-gray-700 dark:text-gray-400">
+                <thead className="text-xs w-full p-0 mx-0 text-gray-700  bg-neutral dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                         <th scope="col" className="px-2 py-3">
                             Option
@@ -239,7 +243,7 @@ export default function CustomList() {
                                 )}
                             </div>
                         </td>
-                        <td className="px-2 text-xs py-2">{option.premium}</td>
+                        <td className="px-2 text-xs py-2">{option.premium / 1e6}$</td>
                         <td className="px-2 text-xs py-2">{option.unitsLeft}/{option.units}</td>
                         <td className="px-2 text-xs py-2">{option.capPerUnit / 1e6}$</td>
                         <td className="px-2 text-xs py-2">{option.strikePrice / 1e6}$</td>

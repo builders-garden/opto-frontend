@@ -1419,4 +1419,4 @@ export const OptoAbi = [
 	}
 ] as const
 
-export const OptoAddress = "0xa24D94e805ad0ba430cC9396D112e4283C2E9532" as const
+export const OptoAddress = "0x55ef9bA96E80c634E6652fb164fa61517F5611d1" as const

@@ -145,9 +145,9 @@ export default function AssetLists() {
             <div className="drawer drawer-end">
                 <div role="tablist" className="tabs tabs-lifted">
                     <input type="radio" name="my_tabs_2" role="tab" className="tab bg-slate-100" aria-label="Equities" defaultChecked />
-                    <div role="tabpanel" className="tab-content bg-primary border-base-300  p-6">
+                    <div role="tabpanel" className="tab-content bg-primary border-base-300  p-2">
                         <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                            <thead className="text-xs text-gray-700  bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
+                            <thead className="text-xs text-gray-700  bg-neutral  dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
                                     <th scope="col" className="ml-12 px-8 py-3">
                                         <div className="flex items-center">
@@ -212,12 +212,12 @@ export default function AssetLists() {
                     </div>
 
                     <input type="radio" name="my_tabs_2" role="tab" className="tab bg-slate-100 " aria-label="Gas&Blob" />
-                    <div role="tabpanel" className="tab-content bg-primary border-base-300  border-slate-100 p-6">
+                    <div role="tabpanel" className="tab-content bg-primary border-base-300  border-slate-100 p-2">
 
 
 
                         <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                            <thead className="text-xs text-gray-700  bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
+                            <thead className="text-xs text-gray-700  bg-neutral  dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
                                     <th scope="col" className="ml-12 px-8 py-3">
                                         <div className="flex items-center">
@@ -280,9 +280,9 @@ export default function AssetLists() {
                         </table>
                     </div>
                     <input type="radio" name="my_tabs_2" role="tab" className="tab bg-slate-100" aria-label="Misc." />
-                    <div role="tabpanel" className="tab-content bg-base-100 border-base-300  p-6">
+                    <div role="tabpanel" className="tab-content bg-base-100 border-base-300  p-2">
                         <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                            <thead className="text-xs text-gray-700  bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
+                            <thead className="text-xs text-gray-700  bg-neutral  bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
                                     <th scope="col" className="ml-12 px-8 py-3">
                                         <div className="flex items-center">
@@ -347,11 +347,8 @@ export default function AssetLists() {
 
                     </div>
 
-                    <input type="radio" name="my_tabs_2" role="tab" className="tab bg-slate-100" aria-label="Crypto" disabled />
-                    <div role="tabpanel" className="tab-content bg-base-100 border-base-300  p-6"></div>
-
                     <input type="radio" name="my_tabs_2" role="tab" className="tab bg-slate-100" aria-label="Custom" />
-                    <div role="tabpanel" className="tab-content bg-base-100 border-base-300  p-6">
+                    <div role="tabpanel" className="tab-content bg-base-100 border-base-300  p-2">
 
                         <CustomList />
 
@@ -414,7 +411,7 @@ export default function AssetLists() {
                                         </thead>
                                         <tbody>
                                             {sidebarContent && sidebarContent.length == 0 && (<>      <tr>
-                                                <td colSpan="12" className="text-center  py-4">
+                                                <td colSpan={12} className="text-center  py-4">
                                                     <div className="flex text-lg justify-center mt-40 items-center h-full">
 
                                                         <span>No option available for {selectedItem}</span>
