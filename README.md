@@ -12,7 +12,9 @@ npm run dev
 yarn dev
 ```
 
+## Deployement
 
+[Live opto test dapp](https://opto-fe-app.vercel.app/)
 
 
 
